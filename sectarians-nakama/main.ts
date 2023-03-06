@@ -11,6 +11,7 @@ function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkrunt
         matchJoin,
         matchLeave,
         matchLoop,
+        matchSignal,
         matchTerminate
     });
 

@@ -81,6 +81,16 @@ let matchLeave: nkruntime.MatchLeaveFunction = function (context: nkruntime.Cont
     return { state: gameState };
 }
 
+let matchSignal: nkruntime.MatchSignalFunction = function (ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, tick: number, state: nkruntime.MatchState, data: string) : { state: nkruntime.MatchState, data?: string } | null 
+{
+    logger.debug('Lobby match signal received: ' + data);
+  
+    return {
+        state,
+        data: "Lobby match signal received: " + data
+    };
+}
+
 let matchTerminate: nkruntime.MatchTerminateFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, tick: number, state: nkruntime.MatchState, graceSeconds: number)
 {
     return { state };
@@ -120,7 +130,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
         gameState.countdown--;
         if (gameState.countdown == 0)
         {
-            gameState.checkChangeMoney: IDictionary = {};
+            //gameState.checkChangeMoney: IDictionary = {};
             gameState.roundDeclaredWins = [];
             gameState.countdown = DurationRoundResults * TickRate;
             gameState.scene = Scene.RoundResults;
@@ -214,7 +224,7 @@ function playerPaid(message: nkruntime.MatchMessage, gameState: GameState, dispa
     let playerNumber: number = getPlayerNumber(gameState.players, data.presence.sessionId);
     gameState.players[playerNumber].isPaid = true;
 }
-
+/*
 function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
 {
     if (gameState.scene != Scene.Battle)
@@ -230,7 +240,7 @@ function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState
     gameState.checkChangeMoney.tick.playerNumber.money = currentMoney;
     gameState.checkChangeMoney.tick.playerNumber.money.count = 0;
     gameState.checkChangeMoney.tick.playerNumber.money.count++;
-    if (check.tick.playerNumber.money.count < getPlayersCount(gameState.players))
+    if (gameState.checkChangeMoney.tick.playerNumber.money.count < getPlayersCount(gameState.players))
         return;
 
     gameState.playersMoney[playerNumber] = currentMoney;
@@ -258,7 +268,7 @@ function playerWon(message: nkruntime.MatchMessage, gameState: GameState, dispat
     gameState.countdown = DurationBattleEnding * TickRate;
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
-
+*/
 function cancelMatch(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
 {
     console.log("cancelMatch");
