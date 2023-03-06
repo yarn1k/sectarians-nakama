@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "typeRoots": [
+        "./node_modules"
+    ],
+    "outFile": "./build/index.js",
+    "target": "es5",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}
