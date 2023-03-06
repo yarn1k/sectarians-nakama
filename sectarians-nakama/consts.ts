@@ -11,7 +11,7 @@ const KeyTrophies = "Trophies";
 
 const MessagesLogic: { [opCode: number]: (message: nkruntime.MatchMessage, state: GameState, dispatcher: nkruntime.MatchDispatcher) => void } =
 {
-    3: playerPaid,
+    //3: playerPaid,
     //4: playerChangeMoney,
     //5: playerWon,
     6: cancelMatch
