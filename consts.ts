@@ -1,6 +1,6 @@
 
 const TickRate = 16;
-const DurationLobby = 10;
+const DurationLobby = 600;
 const DurationRoundResults = 120; // in seconds
 const DurationBattleEnding = 3;
 const MinimumPlayers = 5;
@@ -11,6 +11,8 @@ const KeyTrophies = "Trophies";
 
 const MessagesLogic: { [opCode: number]: (message: nkruntime.MatchMessage, state: GameState, dispatcher: nkruntime.MatchDispatcher) => void } =
 {
-    3: playerChangeMoney,
-    4: playerWon
+    3: playerPaid,
+    4: playerChangeMoney,
+    5: playerWon,
+    6: cancelMatch
 }

@@ -6,7 +6,8 @@ interface MatchLabel
 interface GameState
 {
     players: Player[]
-    playersWins: number[]
+    playersMoney: number[]
+    checkChangeMoney: any
     roundDeclaredWins: number[][]
     scene: Scene
     countdown: number
@@ -17,6 +18,7 @@ interface Player
 {
     presence: nkruntime.Presence
     displayName: string
+    isPaid: boolean
 }
 
 interface TimeRemainingData

@@ -5,6 +5,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
     {
         players: [],
         playersMoney: [],
+        checkChangeMoney: any,
         roundDeclaredWins: [[]],
         scene: Scene.Lobby,
         countdown: DurationLobby * TickRate,
@@ -41,7 +42,8 @@ let matchJoin: nkruntime.MatchJoinFunction = function (context: nkruntime.Contex
         let player: Player =
         {
             presence: presence,
-            displayName: account.user.displayName
+            displayName: account.user.displayName,
+            isPaid: false
         }
 
         let nextPlayerNumber: number = getNextPlayerNumber(gameState.players);
@@ -118,6 +120,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
         gameState.countdown--;
         if (gameState.countdown == 0)
         {
+            gameState.checkChangeMoney: any = {};
             gameState.roundDeclaredWins = [];
             gameState.countdown = DurationRoundResults * TickRate;
             gameState.scene = Scene.RoundResults;
@@ -133,9 +136,15 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
         gameState.countdown--;
         if (gameState.countdown == 0)
         {
-            gameState.scene = Scene.Battle;
-            dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
-            dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
+            if (isAllPlayersPaid(gameState.players)) {
+                gameState.scene = Scene.Battle;
+                dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
+                dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
+            } 
+            else 
+            {
+                dispatcher.broadcastMessage(OperationCode.CancelMatch, JSON.stringify(gameState.players));
+            }
         }
     }
 }
@@ -148,7 +157,6 @@ function matchLoopRoundResults(gameState: GameState, nakama: nkruntime.Nakama, d
         if (gameState.countdown == 0)
         {
             var winner = getWinner(gameState.playersMoney, gameState.players);
-            // Do each player get a reward?
             if (winner != null)
             {
                 let storageReadRequests: nkruntime.StorageReadRequest[] = [{
@@ -187,6 +195,26 @@ function matchLoopRoundResults(gameState: GameState, nakama: nkruntime.Nakama, d
     }
 }
 
+function isAllPlayersPaid(players: Player[]): boolean
+{
+    var count: number = 0;
+    for (let playerNumber = 0; playerNumber < MaxPlayers; playerNumber++)
+        if (players[playerNumber].isPaid)
+            count++;
+
+    if (count == MaxPlayers)
+        return true;
+
+    return false;
+}
+
+function playerPaid(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
+{
+    let data: Player = JSON.parse(message.data);
+    let playerNumber: number = getPlayerNumber(gameState.players, data.presence.sessionId);
+    gameState.players[playerNumber].isPaid = true;
+}
+
 function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
 {
     if (gameState.scene != Scene.Battle)
@@ -197,12 +225,11 @@ function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState
     let playerNumber: number = data.playerNumber;
     let currentMoney: number = data.money;
 
-    let check: any = {};
-    check.tick = tick;
-    check.tick.playerNumber = playerNumber;
-    check.tick.playerNumber.money = currentMoney;
-    check.tick.playerNumber.money.count = 0;
-    check.tick.playerNumber.money.count++;
+    gameState.checkChangeMoney.tick = tick;
+    gameState.checkChangeMoney.tick.playerNumber = playerNumber;
+    gameState.checkChangeMoney.tick.playerNumber.money = currentMoney;
+    gameState.checkChangeMoney.tick.playerNumber.money.count = 0;
+    gameState.checkChangeMoney.tick.playerNumber.money.count++;
     if (check.tick.playerNumber.money.count < getPlayersCount(gameState.players))
         return;
 
@@ -230,6 +257,11 @@ function playerWon(message: nkruntime.MatchMessage, gameState: GameState, dispat
 
     gameState.countdown = DurationBattleEnding * TickRate;
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
+}
+
+function cancelMatch(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
+{
+    console.log("cancelMatch");
 }
 
 function getPlayersCount(players: Player[]): number
