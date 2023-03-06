@@ -290,7 +290,7 @@ function playerObtainedNecessaryWins(playersWins: number[]): boolean
 }
 */
 
-function getWinner(playersWins: number[], players: Player[]): Player | null
+function getWinner(playersMoney: number[], players: Player[]): Player | null
 {
     let result = 0;
     let winner = null;
