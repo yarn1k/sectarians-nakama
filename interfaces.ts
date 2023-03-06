@@ -7,7 +7,7 @@ interface GameState
 {
     players: Player[]
     playersMoney: number[]
-    checkChangeMoney: number[][]
+    checkChangeMoney: any
     roundDeclaredWins: number[][]
     scene: Scene
     countdown: number
