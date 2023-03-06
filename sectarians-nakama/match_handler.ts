@@ -217,14 +217,14 @@ function isAllPlayersPaid(players: Player[]): boolean
 
     return false;
 }
-
+/*
 function playerPaid(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
 {
     let data: Player = JSON.parse(message.data);
     let playerNumber: number = getPlayerNumber(gameState.players, data.presence.sessionId);
     gameState.players[playerNumber].isPaid = true;
 }
-/*
+
 function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
 {
     if (gameState.scene != Scene.Battle)
