@@ -3,11 +3,15 @@ interface MatchLabel
     open: boolean
 }
 
+interface IDictionary {
+    [key: number]: any
+}
+
 interface GameState
 {
     players: Player[]
     playersMoney: number[]
-    checkChangeMoney: any
+    checkChangeMoney: IDictionary
     roundDeclaredWins: number[][]
     scene: Scene
     countdown: number
