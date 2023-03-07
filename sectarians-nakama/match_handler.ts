@@ -144,17 +144,14 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
     if (gameState.countdown > 0 && getPlayersCount(gameState.players) == MinimumPlayers)
     {
         gameState.countdown--;
+        if (isAllPlayersPaid(gameState.players)) {
+            gameState.scene = Scene.Battle;
+            dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
+            dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
+        }
         if (gameState.countdown == 0)
         {
-            if (isAllPlayersPaid(gameState.players)) {
-                gameState.scene = Scene.Battle;
-                dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
-                dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
-            } 
-            else 
-            {
-                dispatcher.broadcastMessage(OperationCode.CancelMatch, JSON.stringify(gameState.players));
-            }
+            dispatcher.broadcastMessage(OperationCode.CancelMatch, JSON.stringify(gameState.players));
         }
     }
 }

@@ -3,9 +3,9 @@ let joinOrCreateMatch: nkruntime.RpcFunction = function (context: nkruntime.Cont
     let matches: nkruntime.Match[];
     const MatchesLimit = 10;
     const isAuthoritative = true;
-    //const MinimumPlayers = 5;
+    const MinimumPlayers = 0;
     var label: MatchLabel = { open: true }
-    matches = nakama.matchList(MatchesLimit, isAuthoritative, JSON.stringify(label), MinimumPlayers, MaxPlayers - 1);
+    matches = nakama.matchList(MatchesLimit, isAuthoritative, JSON.stringify(label), MinimumPlayers, 1); //MaxPlayers - 1
     if (matches.length > 0)
         return matches[0].matchId;
 
