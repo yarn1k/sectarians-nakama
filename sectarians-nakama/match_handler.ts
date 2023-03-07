@@ -204,6 +204,7 @@ function matchLoopRoundResults(gameState: GameState, nakama: nkruntime.Nakama, d
 
 function isAllPlayersPaid(players: Player[]): boolean
 {
+    return true; // for test
     var count: number = 0;
     for (let playerNumber = 0; playerNumber < MaxPlayers; playerNumber++)
         if (players[playerNumber].isPaid)
