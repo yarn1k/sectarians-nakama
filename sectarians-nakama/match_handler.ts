@@ -141,7 +141,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
 
 function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher): void
 {
-    if (gameState.countdown > 0 && getPlayersCount(gameState.players) == MinimumPlayers)
+    if (gameState.countdown > 0 && getPlayersCount(gameState.players) == MaxTestPlayers)
     {
         gameState.countdown--;
         if (isAllPlayersPaid(gameState.players)) {
@@ -205,7 +205,6 @@ function matchLoopRoundResults(gameState: GameState, nakama: nkruntime.Nakama, d
 function isAllPlayersPaid(players: Player[]): boolean
 {
     var count: number = 0;
-    var MaxTestPlayers: number = 2;
     for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)  // change to MaxPlayers
         if (players[playerNumber].isPaid)
             count++;
