@@ -209,7 +209,7 @@ function isAllPlayersPaid(players: Player[]): boolean
         if (players[playerNumber].isPaid)
             count++;
 
-    if (count == MaxPlayers)
+    if (count == MaxTestPlayers)
         return true;
 
     return false;
