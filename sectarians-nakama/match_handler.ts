@@ -43,7 +43,7 @@ let matchJoin: nkruntime.MatchJoinFunction = function (context: nkruntime.Contex
         {
             presence: presence,
             displayName: account.user.displayName,
-            isPaid: false
+            isPaid: true // for test
         }
 
         let nextPlayerNumber: number = getNextPlayerNumber(gameState.players);
@@ -204,7 +204,6 @@ function matchLoopRoundResults(gameState: GameState, nakama: nkruntime.Nakama, d
 
 function isAllPlayersPaid(players: Player[]): boolean
 {
-    return true; // for test
     var count: number = 0;
     for (let playerNumber = 0; playerNumber < MaxPlayers; playerNumber++)
         if (players[playerNumber].isPaid)
