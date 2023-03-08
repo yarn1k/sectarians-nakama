@@ -1,5 +1,5 @@
 
-const TickRate = 16;
+const TickRate = 1;
 const DurationLobby = 600;
 const DurationRoundResults = 120; // in seconds
 const DurationBattleEnding = 3;
