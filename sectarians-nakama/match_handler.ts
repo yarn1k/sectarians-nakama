@@ -61,7 +61,7 @@ let matchJoin: nkruntime.MatchJoinFunction = function (context: nkruntime.Contex
 let matchLoop: nkruntime.MatchLoopFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, tick: number, state: nkruntime.MatchState, messages: nkruntime.MatchMessage[])
 {
     let gameState = state as GameState;
-    processMessages(messages, gameState, dispatcher);
+    processMessages(nakama, messages, gameState, dispatcher);
     processMatchLoop(gameState, nakama, dispatcher, logger);
     return gameState.endMatch ? null : { state: gameState };
 }
@@ -96,13 +96,13 @@ let matchTerminate: nkruntime.MatchTerminateFunction = function (context: nkrunt
     return { state };
 }
 
-function processMessages(messages: nkruntime.MatchMessage[], gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
+function processMessages(nakama: nkruntime.Nakama, messages: nkruntime.MatchMessage[], gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
 {
     for (let message of messages)
     {
         let opCode: number = message.opCode;
         if (MessagesLogic.hasOwnProperty(opCode))
-            MessagesLogic[opCode](message, gameState, dispatcher);
+            MessagesLogic[opCode](nakama, message, gameState, dispatcher);
         else
             messagesDefaultLogic(message, gameState, dispatcher);
     }
