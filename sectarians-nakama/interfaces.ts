@@ -4,7 +4,7 @@ interface MatchLabel
 }
 
 interface IDictionary {
-    [key: number]: any
+    [key: string]: any
 }
 
 interface GameState
