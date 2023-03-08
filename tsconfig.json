@@ -1,4 +1,12 @@
 {
+"files": [
+    "./main.ts",
+    "./rpcs.ts",
+    "./match_handler.ts",
+    "./interfaces.ts",
+    "./enums.ts",
+    "./consts.ts"
+  ],
   "compilerOptions": {
     "typeRoots": [
         "./node_modules"
