@@ -1,12 +1,9 @@
 const enum Scene
 {
-    Initializer = 0,
-    Splash = 0,
     Home = 0,
     Lobby = 0,
     Battle = 1,
-    RoundResults = 1,
-    FinalResults = 0
+    RoundResults = 1
 }
 
 const enum OperationCode

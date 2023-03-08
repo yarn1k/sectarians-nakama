@@ -134,7 +134,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
             gameState.roundDeclaredWins = [];
             gameState.countdown = DurationRoundResults * TickRate;
             gameState.scene = Scene.RoundResults;
-            dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
+            //dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
         }
     }
 }
@@ -190,7 +190,7 @@ function matchLoopRoundResults(gameState: GameState, nakama: nkruntime.Nakama, d
 
                 nakama.storageWrite(storageWriteRequests);
                 gameState.endMatch = true;
-                gameState.scene = Scene.FinalResults;
+                gameState.scene = Scene.Home;
             }
             else
             {
@@ -214,7 +214,7 @@ function isAllPlayersPaid(players: Player[]): boolean
 
     return false;
 }
-/*
+
 function playerPaid(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
 {
     let data: Player = JSON.parse(message.data);
@@ -265,7 +265,7 @@ function playerWon(message: nkruntime.MatchMessage, gameState: GameState, dispat
     gameState.countdown = DurationBattleEnding * TickRate;
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
-*/
+
 function cancelMatch(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
 {
     console.log("cancelMatch");
