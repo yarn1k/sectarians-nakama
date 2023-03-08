@@ -267,7 +267,7 @@ function playerWon(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameSt
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
 
-function cancelMatch(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
+function cancelMatch(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
 {
     console.log("cancelMatch");
 }
