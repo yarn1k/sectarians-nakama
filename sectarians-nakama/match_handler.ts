@@ -5,7 +5,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
     {
         players: [],
         playersMoney: [],
-        checkChangeMoney: [[]],
+        checkChangeMoney: {},
         roundDeclaredWins: [[]],
         scene: Scene.Lobby,
         countdown: DurationLobby * TickRate,
@@ -130,7 +130,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
         gameState.countdown--;
         if (gameState.countdown == 0)
         {
-            gameState.checkChangeMoney = [];
+            gameState.checkChangeMoney = {};
             gameState.roundDeclaredWins = [];
             gameState.countdown = DurationRoundResults * TickRate;
             gameState.scene = Scene.RoundResults;
@@ -232,17 +232,12 @@ function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState
     let playerNumber: number = data.playerNumber;
     let currentMoney: number = data.money;
 
-    if (gameState.checkChangeMoney[tick] == undefined)
-        gameState.checkChangeMoney[tick] = [];
+    let key = String(tick) + String(playerNumber) + String(currentMoney);
+    if (!gameState.checkChangeMoney[key])
+        gameState.checkChangeMoney[key] = 0;
 
-    if (gameState.checkChangeMoney[tick][playerNumber] == undefined)
-        gameState.checkChangeMoney[tick][playerNumber] = [];
-
-    if (gameState.checkChangeMoney[tick][playerNumber][currentMoney] == undefined)
-        gameState.checkChangeMoney[tick][playerNumber][currentMoney] = 0;
-
-    gameState.checkChangeMoney[tick][playerNumber][currentMoney]++;
-     if (gameState.checkChangeMoney[tick][playerNumber][currentMoney] < getPlayersCount(gameState.players))
+    gameState.checkChangeMoney[key]++;
+    if (gameState.checkChangeMoney[key] < getPlayersCount(gameState.players))
         return;
 
     gameState.playersMoney[playerNumber] = currentMoney;
