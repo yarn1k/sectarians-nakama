@@ -215,20 +215,20 @@ function isAllPlayersPaid(players: Player[]): boolean
     return false;
 }
 
-function playerPaid(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
+function playerPaid(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
 {
-    
-    let data: Player = JSON.parse(nkruntime.binaryToString(message.data));
+
+    let data: Player = JSON.parse(nk.binaryToString(message.data));
     let playerNumber: number = getPlayerNumber(gameState.players, data.presence.sessionId);
     gameState.players[playerNumber].isPaid = true;
 }
 
-function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
+function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
 {
     if (gameState.scene != Scene.Battle)
         return;
 
-    let data: PlayerMoneyData = JSON.parse(nkruntime.binaryToString(message.data));
+    let data: PlayerMoneyData = JSON.parse(nk.binaryToString(message.data));
     let tick: number = data.tick;
     let playerNumber: number = data.playerNumber;
     let currentMoney: number = data.money;
@@ -245,12 +245,12 @@ function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
 
-function playerWon(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
+function playerWon(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
 {
     if (gameState.scene != Scene.Battle || gameState.countdown > 0)
         return;
 
-    let data: PlayerWonData = JSON.parse(nkruntime.binaryToString(message.data));
+    let data: PlayerWonData = JSON.parse(nk.binaryToString(message.data));
     let tick: number = data.tick;
     let playerNumber: number = data.playerNumber;
     if (gameState.roundDeclaredWins[tick] == undefined)
