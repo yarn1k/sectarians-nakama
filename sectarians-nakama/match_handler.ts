@@ -217,7 +217,8 @@ function isAllPlayersPaid(players: Player[]): boolean
 
 function playerPaid(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
 {
-    let data: Player = JSON.parse(message.data);
+    
+    let data: Player = JSON.parse(nk.binaryToString(message.data));
     let playerNumber: number = getPlayerNumber(gameState.players, data.presence.sessionId);
     gameState.players[playerNumber].isPaid = true;
 }
@@ -227,7 +228,7 @@ function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState
     if (gameState.scene != Scene.Battle)
         return;
 
-    let data: PlayerMoneyData = JSON.parse(message.data);
+    let data: PlayerMoneyData = JSON.parse(nk.binaryToString(message.data));
     let tick: number = data.tick;
     let playerNumber: number = data.playerNumber;
     let currentMoney: number = data.money;
@@ -249,7 +250,7 @@ function playerWon(message: nkruntime.MatchMessage, gameState: GameState, dispat
     if (gameState.scene != Scene.Battle || gameState.countdown > 0)
         return;
 
-    let data: PlayerWonData = JSON.parse(message.data);
+    let data: PlayerWonData = JSON.parse(nk.binaryToString(message.data));
     let tick: number = data.tick;
     let playerNumber: number = data.playerNumber;
     if (gameState.roundDeclaredWins[tick] == undefined)
