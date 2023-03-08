@@ -61,7 +61,7 @@ let matchJoin: nkruntime.MatchJoinFunction = function (context: nkruntime.Contex
 let matchLoop: nkruntime.MatchLoopFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, tick: number, state: nkruntime.MatchState, messages: nkruntime.MatchMessage[])
 {
     let gameState = state as GameState;
-    processMessages(nakama, messages, gameState, dispatcher);
+    processMessages(nakama, messages, gameState, dispatcher, logger);
     processMatchLoop(gameState, nakama, dispatcher, logger);
     return gameState.endMatch ? null : { state: gameState };
 }
@@ -96,13 +96,13 @@ let matchTerminate: nkruntime.MatchTerminateFunction = function (context: nkrunt
     return { state };
 }
 
-function processMessages(nakama: nkruntime.Nakama, messages: nkruntime.MatchMessage[], gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
+function processMessages(nakama: nkruntime.Nakama, messages: nkruntime.MatchMessage[], gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
     for (let message of messages)
     {
         let opCode: number = message.opCode;
         if (MessagesLogic.hasOwnProperty(opCode))
-            MessagesLogic[opCode](nakama, message, gameState, dispatcher);
+            MessagesLogic[opCode](nakama, message, gameState, dispatcher, logger);
         else
             messagesDefaultLogic(message, gameState, dispatcher);
     }
@@ -215,7 +215,7 @@ function isAllPlayersPaid(players: Player[]): boolean
     return false;
 }
 
-function playerPaid(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
+function playerPaid(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
 
     let data: Player = JSON.parse(nk.binaryToString(message.data));
@@ -223,7 +223,7 @@ function playerPaid(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameS
     gameState.players[playerNumber].isPaid = true;
 }
 
-function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
+function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
 {
     if (gameState.scene != Scene.Battle)
         return;
@@ -245,8 +245,9 @@ function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
 
-function playerWon(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
+function playerWon(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
 {
+    logger.info("countdown="+String(gameState.countdown));
     if (gameState.scene != Scene.Battle || gameState.countdown > 0)
         return;
 
@@ -260,14 +261,16 @@ function playerWon(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameSt
         gameState.roundDeclaredWins[tick][playerNumber] = 0;
 
     gameState.roundDeclaredWins[tick][playerNumber]++;
+    logger.info("succeses="+String(gameState.roundDeclaredWins[tick][playerNumber]));
     if (gameState.roundDeclaredWins[tick][playerNumber] < getPlayersCount(gameState.players))
         return;
 
+    logger.info("winner="+String(playerNumber));
     gameState.countdown = DurationBattleEnding * TickRate;
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
 
-function cancelMatch(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void 
+function cancelMatch(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
 {
     console.log("cancelMatch");
 }
