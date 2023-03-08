@@ -130,7 +130,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
         gameState.countdown--;
         if (gameState.countdown == 0)
         {
-            //gameState.checkChangeMoney: IDictionary = {};
+            gameState.checkChangeMoney: IDictionary = {};
             gameState.roundDeclaredWins = [];
             gameState.countdown = DurationRoundResults * TickRate;
             gameState.scene = Scene.RoundResults;
