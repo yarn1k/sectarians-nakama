@@ -1,6 +1,7 @@
 
 const TickRate = 1;
 const DurationLobby = 600;
+const DurationRoundResultsTest = 15;
 const DurationRoundResults = 120; // in seconds
 const DurationBattleEnding = 3;
 const MinimumPlayers = 0;

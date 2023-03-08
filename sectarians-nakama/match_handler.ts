@@ -132,7 +132,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
         {
             gameState.checkChangeMoney = {};
             gameState.roundDeclaredWins = [];
-            gameState.countdown = DurationRoundResults * TickRate;
+            gameState.countdown = DurationBattleEnding * TickRate;
             gameState.scene = Scene.RoundResults;
             //dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
         }
@@ -145,6 +145,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
     {
         gameState.countdown--;
         if (isAllPlayersPaid(gameState.players)) {
+            gameState.countdown = DurationRoundResultsTest * TickRate;
             gameState.scene = Scene.Battle;
             dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
             dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
