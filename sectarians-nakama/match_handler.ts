@@ -5,7 +5,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
     {
         players: [],
         playersMoney: [],
-        checkChangeMoney: [],
+        checkChangeMoney: {},
         roundDeclaredWins: [[]],
         scene: Scene.Lobby,
         countdown: DurationLobby * TickRate,
@@ -130,7 +130,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
         gameState.countdown--;
         if (gameState.countdown == 0)
         {
-            gameState.checkChangeMoney = new Map();
+            gameState.checkChangeMoney: IDictionary = {};
             gameState.roundDeclaredWins = [];
             gameState.countdown = DurationRoundResults * TickRate;
             gameState.scene = Scene.RoundResults;
@@ -232,20 +232,12 @@ function playerChangeMoney(message: nkruntime.MatchMessage, gameState: GameState
     let playerNumber: number = data.playerNumber;
     let currentMoney: number = data.money;
 
-    //gameState.checkChangeMoney.tick = tick;
-    //gameState.checkChangeMoney.tick.playerNumber = playerNumber;
-    //gameState.checkChangeMoney.tick.playerNumber.money = currentMoney;
-    //gameState.checkChangeMoney.tick.playerNumber.money.count = 0;
-    //gameState.checkChangeMoney.tick.playerNumber.money.count++;
-    
-    let key = String(tick) + String(playerNumber) + String(currentMoney);
-    if (gameState.checkChangeMoney.has(key)) {
-        gameState.checkChangeMoney.set(key, gameState.checkChangeMoney.map.get(key)++);
-    } else {
-        gameState.checkChangeMoney.set(key, 0);
-    }
-
-    if (gameState.checkChangeMoney.map.get(key) < getPlayersCount(gameState.players))
+    gameState.checkChangeMoney.tick = tick;
+    gameState.checkChangeMoney.tick.playerNumber = playerNumber;
+    gameState.checkChangeMoney.tick.playerNumber.money = currentMoney;
+    gameState.checkChangeMoney.tick.playerNumber.money.count = 0;
+    gameState.checkChangeMoney.tick.playerNumber.money.count++;
+    if (gameState.checkChangeMoney.tick.playerNumber.money.count < getPlayersCount(gameState.players))
         return;
 
     gameState.playersMoney[playerNumber] = currentMoney;

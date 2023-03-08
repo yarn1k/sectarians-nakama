@@ -11,7 +11,7 @@ interface GameState
 {
     players: Player[]
     playersMoney: number[]
-    checkChangeMoney: Map
+    checkChangeMoney: IDictionary
     roundDeclaredWins: number[][]
     scene: Scene
     countdown: number
