@@ -170,9 +170,9 @@ function matchLoopRoundResult(gameState: GameState, nakama: nkruntime.Nakama, di
         if (gameState.countdown == 0)
         {
             var winner = getWinner(gameState.playersMoney, gameState.players);
-            logger.info("Winner="+String(winner.presence.userId));
             if (winner != null)
             {
+                logger.info("Winner="+String(winner.presence.userId));
                 let storageReadRequests: nkruntime.StorageReadRequest[] = [{
                     collection: CollectionUser,
                     key: KeyTrophies,
