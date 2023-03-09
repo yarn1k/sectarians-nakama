@@ -246,6 +246,7 @@ function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage
         gameState.checkChangeMoney[key] = 0;
 
     gameState.checkChangeMoney[key]++;
+    logger.info("ChangeMoneyCount"+gameState.checkChangeMoney[key]);
     if (gameState.checkChangeMoney[key] < getPlayersCount(gameState.players))
         return;
 
@@ -286,7 +287,7 @@ function cancelMatch(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, game
 function getPlayersCount(players: Player[]): number
 {
     var count: number = 0;
-    for (let playerNumber = 0; playerNumber < MaxPlayers; playerNumber++)
+    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)
         if (players[playerNumber] != undefined)
             count++;
 
@@ -296,7 +297,7 @@ function getPlayersCount(players: Player[]): number
 /*
 function playerObtainedNecessaryWins(playersWins: number[]): boolean
 {
-    for (let playerNumber = 0; playerNumber < MaxPlayers; playerNumber++)
+    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)
         if (playersWins[playerNumber] == NecessaryWins)
             return true;
 
@@ -320,7 +321,7 @@ function getWinner(playersMoney: number[], players: Player[]): Player | null
 
 function getPlayerNumber(players: Player[], sessionId: string): number
 {
-    for (let playerNumber = 0; playerNumber < MaxPlayers; playerNumber++)
+    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)
         if (players[playerNumber] != undefined && players[playerNumber].presence.sessionId == sessionId)
             return playerNumber;
 
@@ -329,7 +330,7 @@ function getPlayerNumber(players: Player[], sessionId: string): number
 
 function getNextPlayerNumber(players: Player[]): number
 {
-    for (let playerNumber = 0; playerNumber < MaxPlayers; playerNumber++)
+    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)
         if (!playerNumberIsUsed(players, playerNumber))
             return playerNumber;
 
