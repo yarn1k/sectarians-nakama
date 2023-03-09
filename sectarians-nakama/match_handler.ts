@@ -212,10 +212,10 @@ function matchLoopRoundResult(gameState: GameState, nakama: nkruntime.Nakama, di
             }
             else
             {
-                gameState.scene = Scene.Battle;
+                //dispatcher.broadcastMessage(OperationCode.CancelMatch, JSON.stringify(gameState.scene));
             }
 
-            dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
+            //dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
         }
     }
 }
