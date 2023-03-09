@@ -3,7 +3,7 @@ const enum Scene
     Home = 0,
     Lobby = 0,
     Battle = 1,
-    RoundResults = 1
+    RoundResults = 2
 }
 
 const enum OperationCode
