@@ -69,10 +69,13 @@ let matchLoop: nkruntime.MatchLoopFunction = function (context: nkruntime.Contex
 let matchLeave: nkruntime.MatchLeaveFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, tick: number, state: nkruntime.MatchState, presences: nkruntime.Presence[])
 {
     let gameState = state as GameState;
-    for (let presence of presences)
-    {
-        let playerNumber: number = getPlayerNumber(gameState.players, presence.sessionId);
-        delete gameState.players[playerNumber];
+    let label = JSON.parse(state["label"]);
+    if (label.open) {
+        for (let presence of presences)
+        {
+            let playerNumber: number = getPlayerNumber(gameState.players, presence.sessionId);
+            delete gameState.players[playerNumber];
+        }
     }
 
     if (getPlayersCount(gameState.players) == 0)
