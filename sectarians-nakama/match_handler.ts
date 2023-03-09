@@ -174,11 +174,11 @@ function matchLoopRoundResult(gameState: GameState, nakama: nkruntime.Nakama, di
             playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
         };
         dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
-        logger.info("PlayerWonData="+String(data.tick)+String(data.playerNumber));
         if (gameState.countdown == 0)
         {
             if (winner != null)
             {
+                logger.info("PlayerWonData="+String(data.tick)+String(data.playerNumber));
                 logger.info("Winner="+String(winner.presence.userId));
                 let storageReadRequests: nkruntime.StorageReadRequest[] = [{
                     collection: CollectionUser,
