@@ -10,7 +10,7 @@ const CollectionUser = "User";
 const KeyTrophies = "Trophies";
 
 /* FOR TEST */
-const DurationRoundResultTest = 60;
+const DurationRoundResultTest = 120;
 const MaxTestPlayers = 5;
 
 const MessagesLogic: { [opCode: number]: (nk: nkruntime.Nakama, message: nkruntime.MatchMessage, state: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger) => void } =
