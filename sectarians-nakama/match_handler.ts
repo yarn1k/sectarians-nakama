@@ -239,6 +239,7 @@ function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage
     let tick: number = data.tick;
     let playerNumber: number = data.playerNumber;
     let currentMoney: number = data.money;
+    /*
     let key = String(tick) + String(playerNumber) + String(currentMoney);
     logger.info("ChangeMoneyKey"+key);
 
@@ -249,7 +250,7 @@ function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage
     logger.info("ChangeMoneyCount"+gameState.checkChangeMoney[key]);
     if (gameState.checkChangeMoney[key] < getPlayersCount(gameState.players))
         return;
-
+    */
     logger.info("Player="+String(playerNumber)+" money="+currentMoney);
     gameState.playersMoney[playerNumber] = currentMoney;
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
