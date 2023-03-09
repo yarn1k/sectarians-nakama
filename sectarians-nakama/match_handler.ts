@@ -104,12 +104,13 @@ function processMessages(nakama: nkruntime.Nakama, messages: nkruntime.MatchMess
         if (MessagesLogic.hasOwnProperty(opCode))
             MessagesLogic[opCode](nakama, message, gameState, dispatcher, logger);
         else
-            messagesDefaultLogic(message, gameState, dispatcher);
+            messagesDefaultLogic(message, gameState, dispatcher, logger);
     }
 }
 
-function messagesDefaultLogic(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
+function messagesDefaultLogic(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
+    logger.info("123");
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
 
