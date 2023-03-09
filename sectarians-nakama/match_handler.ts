@@ -117,35 +117,20 @@ function processMatchLoop(gameState: GameState, nakama: nkruntime.Nakama, dispat
 {
     switch (gameState.scene)
     {
-        case Scene.Battle: matchLoopBattle(gameState, nakama, dispatcher); break;
-        case Scene.Lobby: matchLoopLobby(gameState, nakama, dispatcher); break;
-        case Scene.RoundResults: matchLoopRoundResults(gameState, nakama, dispatcher); break;
+        case Scene.Lobby: matchLoopLobby(gameState, nakama, dispatcher, logger); break;
+        case Scene.Battle: matchLoopBattle(gameState, nakama, dispatcher, logger); break;
+        case Scene.RoundResults: matchLoopRoundResult(gameState, nakama, dispatcher, logger); break;
     }
 }
 
-function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher): void
-{
-    if (gameState.countdown > 0)
-    {
-        gameState.countdown--;
-        if (gameState.countdown == 0)
-        {
-            gameState.checkChangeMoney = {};
-            gameState.roundDeclaredWins = [];
-            gameState.countdown = DurationBattleEnding * TickRate;
-            gameState.scene = Scene.RoundResults;
-            //dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
-        }
-    }
-}
-
-function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher): void
+function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
     if (gameState.countdown > 0 && getPlayersCount(gameState.players) == MaxTestPlayers)
     {
         gameState.countdown--;
+        logger.info("LobbyCountdown="+String(gameState.countdown));
         if (isAllPlayersPaid(gameState.players)) {
-            gameState.countdown = DurationRoundResultsTest * TickRate;
+            gameState.countdown = DurationRoundResultTest * TickRate;
             gameState.scene = Scene.Battle;
             dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
             dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
@@ -157,14 +142,33 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
     }
 }
 
-function matchLoopRoundResults(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher): void
+function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
     if (gameState.countdown > 0)
     {
         gameState.countdown--;
+        logger.info("BattleCountdown="+String(gameState.countdown));
+        if (gameState.countdown == 0)
+        {
+            gameState.checkChangeMoney = {};
+            gameState.roundDeclaredWins = [];
+            gameState.countdown = DurationBattleEnding * TickRate;
+            gameState.scene = Scene.RoundResults;
+            //dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
+        }
+    }
+}
+
+function matchLoopRoundResult(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
+{
+    if (gameState.countdown > 0)
+    {
+        gameState.countdown--;
+        logger.info("RoundResultCountdown="+String(gameState.countdown));
         if (gameState.countdown == 0)
         {
             var winner = getWinner(gameState.playersMoney, gameState.players);
+            logger.info("Winner="+String(winner));
             if (winner != null)
             {
                 let storageReadRequests: nkruntime.StorageReadRequest[] = [{
@@ -248,7 +252,6 @@ function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage
 
 function playerWon(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
 {
-    logger.info("countdown="+String(gameState.countdown));
     if (gameState.scene != Scene.Battle || gameState.countdown > 0)
         return;
 
