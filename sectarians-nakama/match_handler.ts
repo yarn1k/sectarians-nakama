@@ -306,7 +306,7 @@ function getWinner(playersMoney: number[], players: Player[]): Player | null
 {
     let result = 0;
     let winner = null;
-    for (let playerNumber = 0; playerNumber < MaxPlayers; playerNumber++) {
+    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++) {
         if (playersMoney[playerNumber] > result) {
             result = playersMoney[playerNumber];
             winner = players[playerNumber];
