@@ -32,7 +32,6 @@ services:
     restart: always
     links:
       - "postgres:db"
-
     expose:
       - "7349"
       - "7350"
