@@ -153,7 +153,9 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
             gameState.checkChangeMoney = {};
             gameState.roundDeclaredWins = [];
             gameState.countdown = DurationBattleEnding * TickRate;
+            logger.info("Before"+String(gameState.scene));
             gameState.scene = Scene.RoundResults;
+            logger.info("After"+String(gameState.scene));
             //dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
         }
     }
