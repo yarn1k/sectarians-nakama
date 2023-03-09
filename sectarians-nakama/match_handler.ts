@@ -166,19 +166,20 @@ function matchLoopRoundResult(gameState: GameState, nakama: nkruntime.Nakama, di
     if (gameState.countdown > 0)
     {
         gameState.countdown--;
-
         logger.info("RoundResultCountdown="+String(gameState.countdown));
         var winner = getWinner(gameState.playersMoney, gameState.players);
-        let data: PlayerWonData = {
-            tick: TickRate,
-            playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
-        };
-        dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
+        if (winner != null) {
+            let data: PlayerWonData = {
+                tick: TickRate,
+                playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
+            };
+            logger.info("PlayerWonData="+String(data.tick)+String(data.playerNumber));
+            dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
+        }
         if (gameState.countdown == 0)
         {
             if (winner != null)
             {
-                logger.info("PlayerWonData="+String(data.tick)+String(data.playerNumber));
                 logger.info("Winner="+String(winner.presence.userId));
                 let storageReadRequests: nkruntime.StorageReadRequest[] = [{
                     collection: CollectionUser,
