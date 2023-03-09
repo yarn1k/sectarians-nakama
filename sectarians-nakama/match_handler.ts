@@ -166,7 +166,7 @@ function matchLoopRoundResult(gameState: GameState, nakama: nkruntime.Nakama, di
     if (gameState.countdown > 0)
     {
         gameState.countdown--;
-        
+
         logger.info("RoundResultCountdown="+String(gameState.countdown));
         var winner = getWinner(gameState.playersMoney, gameState.players);
         let data: PlayerWonData = {
@@ -174,7 +174,7 @@ function matchLoopRoundResult(gameState: GameState, nakama: nkruntime.Nakama, di
             playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
         };
         dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
-
+        logger.info("PlayerWonData="+String(data.tick)+String(data.playerNumber));
         if (gameState.countdown == 0)
         {
             if (winner != null)
