@@ -17,6 +17,6 @@ const MessagesLogic: { [opCode: number]: (nk: nkruntime.Nakama, message: nkrunti
 {
     3: playerPaid,
     4: playerChangeMoney,
-    5: playerWon,
+    //5: playerWon,
     6: cancelMatch
 }

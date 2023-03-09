@@ -166,10 +166,17 @@ function matchLoopRoundResult(gameState: GameState, nakama: nkruntime.Nakama, di
     if (gameState.countdown > 0)
     {
         gameState.countdown--;
+        
         logger.info("RoundResultCountdown="+String(gameState.countdown));
+        var winner = getWinner(gameState.playersMoney, gameState.players);
+        let data: PlayerWonData = {
+            tick: TickRate,
+            playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
+        };
+        dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
+
         if (gameState.countdown == 0)
         {
-            var winner = getWinner(gameState.playersMoney, gameState.players);
             if (winner != null)
             {
                 logger.info("Winner="+String(winner.presence.userId));
@@ -256,6 +263,7 @@ function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
 
+/*
 function playerWon(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
 {
     if (gameState.scene != Scene.Battle || gameState.countdown > 0)
@@ -264,21 +272,11 @@ function playerWon(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameSt
     let data: PlayerWonData = JSON.parse(nk.binaryToString(message.data));
     let tick: number = data.tick;
     let playerNumber: number = data.playerNumber;
-    if (gameState.roundDeclaredWins[tick] == undefined)
-        gameState.roundDeclaredWins[tick] = [];
 
-    if (gameState.roundDeclaredWins[tick][playerNumber] == undefined)
-        gameState.roundDeclaredWins[tick][playerNumber] = 0;
-
-    gameState.roundDeclaredWins[tick][playerNumber]++;
-    logger.info("succeses="+String(gameState.roundDeclaredWins[tick][playerNumber]));
-    if (gameState.roundDeclaredWins[tick][playerNumber] < getPlayersCount(gameState.players))
-        return;
-
-    logger.info("winner="+String(playerNumber));
     gameState.countdown = DurationBattleEnding * TickRate;
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
+*/
 
 function cancelMatch(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
 {
