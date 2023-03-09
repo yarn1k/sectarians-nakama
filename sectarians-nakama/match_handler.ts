@@ -110,7 +110,6 @@ function processMessages(nakama: nkruntime.Nakama, messages: nkruntime.MatchMess
 
 function messagesDefaultLogic(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
-    logger.info("123");
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
 
