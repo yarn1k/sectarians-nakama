@@ -164,7 +164,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
 
 function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
-    var winner = getWinner(gameState.playersMoney, gameState.players);
+    var winner = getWinner(gameState.playersMoney, gameState.players, gameState.draw);
     if (winner != null) {
         let data: PlayerWonData = {
             tick: TickRate,
@@ -231,7 +231,7 @@ function getPlayersCount(players: Player[]): number
     return count;
 }
 
-function getWinner(playersMoney: number[], players: Player[]): Player | null
+function getWinner(playersMoney: number[], players: Player[], draw: boolean): Player | null
 {
     var maxPlayers: number = MaxPlayers;
 
@@ -243,7 +243,7 @@ function getWinner(playersMoney: number[], players: Player[]): Player | null
 
     for (let playerNumber = 0; playerNumber < maxPlayers; playerNumber++) {
         if (playerNumber > 0 && playersMoney[playerNumber] == result) {
-            gameState.draw = true;
+            draw = true;
             return null;
         }
         if (playersMoney[playerNumber] > result) {
