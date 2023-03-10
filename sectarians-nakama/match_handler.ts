@@ -155,7 +155,7 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
         gameState.countdown--;
         if (gameState.countdown == 0)
         {
-            gameState.countdown = DurationBattleEnding * TickRate;
+            //gameState.countdown = DurationBattleEnding * TickRate;
             gameState.scene = Scene.FinalResult;
         }
     }
@@ -163,29 +163,26 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
 
 function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
-    if (gameState.countdown > 0)
-    {
-        gameState.countdown--;
-        var winner = getWinner(gameState.playersMoney, gameState.players);
-        if (winner != null) {
+    var winner = getWinner(gameState.playersMoney, gameState.players);
+    if (winner != null) {
+        if (winner == DrawResult) {
+            dispatcher.broadcastMessage(OperationCode.Draw, null);
+        } 
+        else 
+        {
             let data: PlayerWonData = {
                 tick: TickRate,
                 playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
             };
             dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
         }
-        if (gameState.countdown == 0)
-        {
-            if (winner != null)
-            {
-                gameState.endMatch = true;
-                gameState.scene = Scene.Home;
-            }
-            else
-            {
-                dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
-            }
-        }
+
+        gameState.endMatch = true;
+        gameState.scene = Scene.Home;
+    }
+    else
+    {
+        dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
     }
 }
 
@@ -248,10 +245,10 @@ function getWinner(playersMoney: number[], players: Player[]): Player | null
     let winner = null;
 
     for (let playerNumber = 0; playerNumber < maxPlayers; playerNumber++) {
-        if (playerNumber > 0 && playersMoney[playerNumber] == result) {
-            dispatcher.broadcastMessage(OperationCode.Draw, null);
-            return null;
-        }
+
+        if (playerNumber > 0 && playersMoney[playerNumber] == result)
+            return DrawResult;
+
         if (playersMoney[playerNumber] > result) {
             result = playersMoney[playerNumber];
             winner = players[playerNumber];

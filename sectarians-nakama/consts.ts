@@ -3,9 +3,10 @@ const DEBUG = true
 const TickRate = 1;
 const DurationLobby = 600;
 const DurationFinalResult = 120; // in seconds
-const DurationBattleEnding = 10;
+//const DurationBattleEnding = 10;
 const MaxPlayers = 5;
 const PlayerNotFound = -1;
+const DrawResult = 11;
 
 /* FOR DEBUG */
 const DurationFinalTestResult = 60;
