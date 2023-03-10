@@ -9,6 +9,7 @@ interface GameState
     playersMoney: number[]
     scene: Scene
     countdown: number
+    draw: boolean
     endMatch: boolean
 }
 

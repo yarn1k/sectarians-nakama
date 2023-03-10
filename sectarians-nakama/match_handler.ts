@@ -7,6 +7,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
         playersMoney: [],
         scene: Scene.Lobby,
         countdown: DurationLobby * TickRate,
+        draw: false,
         endMatch: false
     }
 
@@ -165,25 +166,21 @@ function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, di
 {
     var winner = getWinner(gameState.playersMoney, gameState.players);
     if (winner != null) {
-        if (winner == DrawResult) {
-            dispatcher.broadcastMessage(OperationCode.Draw, null);
-        } 
-        else 
-        {
-            let data: PlayerWonData = {
-                tick: TickRate,
-                playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
-            };
-            dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
-        }
-
-        gameState.endMatch = true;
-        gameState.scene = Scene.Home;
+        let data: PlayerWonData = {
+            tick: TickRate,
+            playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
+        };
+        dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
     }
     else
     {
-        dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
+        if (gameState.draw) 
+            dispatcher.broadcastMessage(OperationCode.Draw, null);
+        else
+            dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
     }
+    gameState.endMatch = true;
+    gameState.scene = Scene.Home;
 }
 
 function playerPaid(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
@@ -245,10 +242,10 @@ function getWinner(playersMoney: number[], players: Player[]): Player | null
     let winner = null;
 
     for (let playerNumber = 0; playerNumber < maxPlayers; playerNumber++) {
-
-        if (playerNumber > 0 && playersMoney[playerNumber] == result)
-            return DrawResult;
-
+        if (playerNumber > 0 && playersMoney[playerNumber] == result) {
+            gameState.draw = true;
+            return null;
+        }
         if (playersMoney[playerNumber] > result) {
             result = playersMoney[playerNumber];
             winner = players[playerNumber];
