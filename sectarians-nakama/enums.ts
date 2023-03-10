@@ -2,8 +2,9 @@ const enum Scene
 {
     Home = 0,
     Lobby = 0,
-    Battle = 1,
-    RoundResults = 2
+    Loading = 1,
+    Battle = 2,
+    FinalResult = 3 // logic scene
 }
 
 const enum OperationCode
@@ -12,8 +13,9 @@ const enum OperationCode
     PlayerJoined = 1,
     PlayerPaid = 2,
     PlayerInput = 3,
-    PlayerMoneyChange = 4,
+    PlayerMoneyChanged = 4,
     PlayerWon = 5,
-    ChangeScene = 6,
-    CancelMatch = 7
+    Draw = 6,
+    CancelMatch = 7,
+    ChangeScene = 8
 }

@@ -5,8 +5,6 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
     {
         players: [],
         playersMoney: [],
-        checkChangeMoney: {},
-        roundDeclaredWins: [[]],
         scene: Scene.Lobby,
         countdown: DurationLobby * TickRate,
         endMatch: false
@@ -43,8 +41,11 @@ let matchJoin: nkruntime.MatchJoinFunction = function (context: nkruntime.Contex
         {
             presence: presence,
             displayName: account.user.displayName,
-            isPaid: true // for test
+            isPaid: false
         }
+
+        if (DEBUG)
+            player.isPaid = true;
 
         let nextPlayerNumber: number = getNextPlayerNumber(gameState.players);
         gameState.players[nextPlayerNumber] = player;
@@ -76,10 +77,10 @@ let matchLeave: nkruntime.MatchLeaveFunction = function (context: nkruntime.Cont
             let playerNumber: number = getPlayerNumber(gameState.players, presence.sessionId);
             delete gameState.players[playerNumber];
         }
-    }
 
-    if (getPlayersCount(gameState.players) == 0)
-        return null;
+        if (getPlayersCount(gameState.players) == 0)
+            return null;
+    }
 
     return { state: gameState };
 }
@@ -107,11 +108,11 @@ function processMessages(nakama: nkruntime.Nakama, messages: nkruntime.MatchMess
         if (MessagesLogic.hasOwnProperty(opCode))
             MessagesLogic[opCode](nakama, message, gameState, dispatcher, logger);
         else
-            messagesDefaultLogic(message, gameState, dispatcher, logger);
+            messagesDefaultLogic(message, gameState, dispatcher);
     }
 }
 
-function messagesDefaultLogic(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
+function messagesDefaultLogic(message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher): void
 {
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
@@ -122,7 +123,7 @@ function processMatchLoop(gameState: GameState, nakama: nkruntime.Nakama, dispat
     {
         case Scene.Lobby: matchLoopLobby(gameState, nakama, dispatcher, logger); break;
         case Scene.Battle: matchLoopBattle(gameState, nakama, dispatcher, logger); break;
-        case Scene.RoundResults: matchLoopRoundResult(gameState, nakama, dispatcher, logger); break;
+        case Scene.FinalResult: matchLoopFinalResult(gameState, nakama, dispatcher, logger); break;
     }
 }
 
@@ -131,16 +132,18 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
     if (gameState.countdown > 0 && getPlayersCount(gameState.players) == MaxTestPlayers)
     {
         gameState.countdown--;
-        logger.info("LobbyCountdown="+String(gameState.countdown));
         if (isAllPlayersPaid(gameState.players)) {
-            gameState.countdown = DurationRoundResultTest * TickRate;
+            if (DEBUG)
+                gameState.countdown = DurationFinalTestResult * TickRate;
+            else
+                gameState.countdown = DurationFinalResultTest * TickRate;
             gameState.scene = Scene.Battle;
             dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
             dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
         }
         if (gameState.countdown == 0)
         {
-            dispatcher.broadcastMessage(OperationCode.CancelMatch, JSON.stringify(gameState.players));
+            dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
         }
     }
 }
@@ -150,98 +153,50 @@ function matchLoopBattle(gameState: GameState, nakama: nkruntime.Nakama, dispatc
     if (gameState.countdown > 0)
     {
         gameState.countdown--;
-        logger.info("BattleCountdown="+String(gameState.countdown));
         if (gameState.countdown == 0)
         {
-            gameState.checkChangeMoney = {};
-            gameState.roundDeclaredWins = [];
             gameState.countdown = DurationBattleEnding * TickRate;
-            logger.info("Before"+String(gameState.scene));
-            gameState.scene = Scene.RoundResults;
-            logger.info("After"+String(gameState.scene));
-            //dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
+            gameState.scene = Scene.FinalResult;
         }
     }
 }
 
-function matchLoopRoundResult(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
+function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
     if (gameState.countdown > 0)
     {
         gameState.countdown--;
-        logger.info("RoundResultCountdown="+String(gameState.countdown));
         var winner = getWinner(gameState.playersMoney, gameState.players);
         if (winner != null) {
             let data: PlayerWonData = {
                 tick: TickRate,
                 playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
             };
-            logger.info("PlayerWonData="+String(data.tick)+String(data.playerNumber));
             dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
         }
         if (gameState.countdown == 0)
         {
             if (winner != null)
             {
-                logger.info("Winner="+String(winner.presence.userId));
-                let storageReadRequests: nkruntime.StorageReadRequest[] = [{
-                    collection: CollectionUser,
-                    key: KeyTrophies,
-                    userId: winner.presence.userId
-                }];
-
-                let result: nkruntime.StorageObject[] = nakama.storageRead(storageReadRequests);
-                var trophiesData: TrophiesData = { amount: 0 };
-                for (let storageObject of result)
-                {
-                    trophiesData = <TrophiesData>storageObject.value;
-                    break;
-                }
-
-                trophiesData.amount++;
-                let storageWriteRequests: nkruntime.StorageWriteRequest[] = [{
-                    collection: CollectionUser,
-                    key: KeyTrophies,
-                    userId: winner.presence.userId,
-                    value: trophiesData
-                }];
-
-                nakama.storageWrite(storageWriteRequests);
                 gameState.endMatch = true;
                 gameState.scene = Scene.Home;
             }
             else
             {
-                //dispatcher.broadcastMessage(OperationCode.CancelMatch, JSON.stringify(gameState.scene));
+                dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
             }
-
-            //dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
         }
     }
 }
 
-function isAllPlayersPaid(players: Player[]): boolean
-{
-    var count: number = 0;
-    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)  // change to MaxPlayers
-        if (players[playerNumber].isPaid)
-            count++;
-
-    if (count == MaxTestPlayers)
-        return true;
-
-    return false;
-}
-
 function playerPaid(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
-
     let data: Player = JSON.parse(nk.binaryToString(message.data));
     let playerNumber: number = getPlayerNumber(gameState.players, data.presence.sessionId);
     gameState.players[playerNumber].isPaid = true;
 }
 
-function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
+function playerMoneyChanged(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
 {
     if (gameState.scene != Scene.Battle)
         return;
@@ -249,42 +204,27 @@ function playerChangeMoney(nk: nkruntime.Nakama, message: nkruntime.MatchMessage
     let data: PlayerMoneyData = JSON.parse(nk.binaryToString(message.data));
     let tick: number = data.tick;
     let playerNumber: number = data.playerNumber;
-    let currentMoney: number = data.money;
-    /*
-    let key = String(tick) + String(playerNumber) + String(currentMoney);
-    logger.info("ChangeMoneyKey"+key);
-
-    if (!gameState.checkChangeMoney[key])
-        gameState.checkChangeMoney[key] = 0;
-
-    gameState.checkChangeMoney[key]++;
-    logger.info("ChangeMoneyCount"+gameState.checkChangeMoney[key]);
-    if (gameState.checkChangeMoney[key] < getPlayersCount(gameState.players))
-        return;
-    */
-    logger.info("Player="+String(playerNumber)+" money="+currentMoney);
-    gameState.playersMoney[playerNumber] = currentMoney;
+    let addMoney: number = data.amount;
+    gameState.playersMoney[playerNumber] += addMoney;
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
 }
 
-/*
-function playerWon(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
+function isAllPlayersPaid(players: Player[]): boolean
 {
-    if (gameState.scene != Scene.Battle || gameState.countdown > 0)
-        return;
+    var count: number = 0;
+    var maxPlayers: number = MaxPlayers;
 
-    let data: PlayerWonData = JSON.parse(nk.binaryToString(message.data));
-    let tick: number = data.tick;
-    let playerNumber: number = data.playerNumber;
+    if (DEBUG)
+        maxPlayers = MaxTestPlayers;
 
-    gameState.countdown = DurationBattleEnding * TickRate;
-    dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
-}
-*/
+    for (let playerNumber = 0; playerNumber < maxPlayers; playerNumber++)
+        if (players[playerNumber].isPaid)
+            count++;
 
-function cancelMatch(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void 
-{
-    console.log("cancelMatch");
+    if (count == maxPlayers)
+        return true;
+
+    return false;
 }
 
 function getPlayersCount(players: Player[]): number
@@ -296,17 +236,6 @@ function getPlayersCount(players: Player[]): number
 
     return count;
 }
-
-/*
-function playerObtainedNecessaryWins(playersWins: number[]): boolean
-{
-    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)
-        if (playersWins[playerNumber] == NecessaryWins)
-            return true;
-
-    return false;
-}
-*/
 
 function getWinner(playersMoney: number[], players: Player[]): Player | null
 {

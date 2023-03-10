@@ -1,5 +1,5 @@
 const JoinOrCreateMatchRpc = "JoinOrCreateMatchRpc";
-const LogicLoadedLoggerInfo = "Custom logic loaded";
+const LogicLoadedLoggerInfo = "INFO: Custom logic loaded";
 const MatchModuleName = "match";
 
 function InitModule(ctx: nkruntime.Context, logger: nkruntime.Logger, nk: nkruntime.Nakama, initializer: nkruntime.Initializer)
