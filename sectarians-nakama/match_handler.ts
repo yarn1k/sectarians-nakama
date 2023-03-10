@@ -136,7 +136,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
             if (DEBUG)
                 gameState.countdown = DurationFinalTestResult * TickRate;
             else
-                gameState.countdown = DurationFinalResultTest * TickRate;
+                gameState.countdown = DurationFinalResult * TickRate;
             gameState.scene = Scene.Battle;
             dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
             dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
@@ -239,9 +239,19 @@ function getPlayersCount(players: Player[]): number
 
 function getWinner(playersMoney: number[], players: Player[]): Player | null
 {
+    var maxPlayers: number = MaxPlayers;
+
+    if (DEBUG)
+        maxPlayers = MaxTestPlayers;
+
     let result = 0;
     let winner = null;
-    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++) {
+
+    for (let playerNumber = 0; playerNumber < maxPlayers; playerNumber++) {
+        if (playerNumber > 0 && playersMoney[playerNumber] == result) {
+            dispatcher.broadcastMessage(OperationCode.Draw, null);
+            return null;
+        }
         if (playersMoney[playerNumber] > result) {
             result = playersMoney[playerNumber];
             winner = players[playerNumber];

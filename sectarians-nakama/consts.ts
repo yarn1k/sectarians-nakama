@@ -6,8 +6,6 @@ const DurationFinalResult = 120; // in seconds
 const DurationBattleEnding = 10;
 const MaxPlayers = 5;
 const PlayerNotFound = -1;
-const CollectionUser = "User";
-const KeyTrophies = "Trophies";
 
 /* FOR DEBUG */
 const DurationFinalTestResult = 60;
