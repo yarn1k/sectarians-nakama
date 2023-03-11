@@ -5,6 +5,7 @@ interface MatchLabel
 
 interface GameState
 {
+    matchId: number
     players: Player[]
     playersMoney: number[]
     scene: Scene

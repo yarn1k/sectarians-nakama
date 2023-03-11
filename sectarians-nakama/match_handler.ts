@@ -1,14 +1,44 @@
+import * as fs from 'fs';
+
+const PathToIdsJson: string = './ids.json';
+let queriesToApi: boolean = false;
+
 let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, params: { [key: string]: string })
 {
+    queriesToApi = false;
+
+    type Match = {
+        matchId: number
+    } 
+
+    let json_file = fs.readFileSync(PathToIdsJson, 'utf-8');
+    let ids = JSON.parse(json_file) as Match;
+
     var label: MatchLabel = { open: true }
     var gameState: GameState =
     {
+        matchId: ids.matchId,
         players: [],
         playersMoney: [],
         scene: Scene.Lobby,
         countdown: DurationLobby * TickRate,
         draw: false,
         endMatch: false
+    }
+
+    const new_ids: Match = {
+        matchId: ids.matchId++
+    };
+
+    while(ids.matchId != new_ids.matchId) 
+    {
+        try {
+            fs.writeFileSync(PathToIdsJson, JSON.stringify(new_ids));
+            json_file = fs.readFileSync(PathToIdsJson, 'utf-8');
+            ids = JSON.parse(json_file) as Match;
+        } catch (e) {
+            logger.error(e); // will log an error because file already exists
+        }
     }
 
     return {
@@ -130,9 +160,34 @@ function processMatchLoop(gameState: GameState, nakama: nkruntime.Nakama, dispat
 
 function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
 {
-    if (gameState.countdown > 0 && getPlayersCount(gameState.players) == MaxTestPlayers)
+    let maxPlayers = MaxPlayers;
+
+    if (DEBUG)
+        maxPlayers = MaxTestPlayers;
+
+    if (gameState.countdown > 0 && getPlayersCount(gameState.players) == maxPlayers)
     {
         gameState.countdown--;
+        if (!queriesToApi) {
+            let startBody = JSON.stringify({
+                data: {'game': gameState.matchId, 'count': 5, 'amount': PlayerPayment, 'currency': 'USDR'},
+                sign: ''
+            });
+            post_api('http://localhost:8080/api/contract/sectarians/start', startBody, logger);
+
+            let testCount = 1;
+            for (let player of gameState.players)
+            {
+                let buyBody = JSON.stringify({
+                    data: {'payment': PlayerPayment, 'account': testCount, 'game': gameState.matchId},
+                    sign: ''
+                });
+                post_api('http://localhost:8080/api/contract/sectarians/buy', buyBody, logger);
+                testCount++;
+            }
+            queriesToApi = true;
+        }
+
         if (isAllPlayersPaid(gameState.players)) {
             if (DEBUG)
                 gameState.countdown = DurationFinalTestResult * TickRate;
@@ -144,6 +199,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
         }
         if (gameState.countdown == 0)
         {
+            cancelMatchApi(gameState.players, gameState.matchId, logger);
             dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
         }
     }
@@ -170,10 +226,24 @@ function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, di
             tick: TickRate,
             playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
         };
+
+        let endBody = JSON.stringify({
+            data: {'game': gameState.matchId, 'wins': [1]},
+            sign: ''
+        });
+        post_api('http://localhost:8080/api/contract/sectarians/end', endBody, logger);
+
+        let profitBody = JSON.stringify({
+            data: {'game': gameState.matchId, 'currency': 'USDR'},
+            sign: ''
+        });
+        post_api('http://localhost:8080/api/contract/sectarians/profit', profitBody, logger);
+
         dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
     }
     else
     {
+        cancelMatchApi(gameState.players, gameState.matchId, logger);
         if (gameState.draw) 
             dispatcher.broadcastMessage(OperationCode.Draw, null);
         else
@@ -201,6 +271,48 @@ function playerMoneyChanged(nk: nkruntime.Nakama, message: nkruntime.MatchMessag
     let addMoney: number = data.amount;
     gameState.playersMoney[playerNumber] += addMoney;
     dispatcher.broadcastMessage(message.opCode, message.data, null, message.sender);
+}
+
+function cancelMatchApi(players: Player[], matchId: number, logger: nkruntime.Logger) {
+    let testCount = 1;
+    for (let player of players)
+    {
+        let cancelBody = JSON.stringify({
+            data: {'payment': PlayerPayment, 'account': testCount, 'game': matchId},
+            sign: ''
+        });
+        post_api('http://localhost:8080/api/contract/sectarians/cancelpay', cancelBody, logger);
+        testCount++;
+    }
+}
+
+async function post_api(url: string, body: any, logger: nkruntime.Logger) 
+{
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: body,
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) 
+            throw new Error(`Error! status: ${response.status}`);
+
+        const result = await response.json();
+        logger.info('result is: ', result);
+        return result;
+    } catch (error) {
+        if (error instanceof Error) {
+          logger.error('error message: ', error.message);
+          return error.message;
+        } else {
+          logger.error('unexpected error: ', error);
+          return 'An unexpected error occurred';
+        }
+    }
 }
 
 function isAllPlayersPaid(players: Player[]): boolean
