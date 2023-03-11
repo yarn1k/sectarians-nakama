@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 const PathToIdsJson: string = './ids.json';
 
 let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, params: { [key: string]: string })
