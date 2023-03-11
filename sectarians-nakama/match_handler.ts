@@ -3,7 +3,7 @@ var QueriesToApi: boolean = false;
 
 let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, params: { [key: string]: string })
 {
-    queriesToApi = false;
+    QueriesToApi = false;
 
     type Match = {
         matchId: number
