@@ -37,7 +37,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
             json_file = fs.readFileSync(PathToIdsJson, 'utf-8');
             ids = JSON.parse(json_file) as Match;
         } catch (e) {
-            logger.error(e); // will log an error because file already exists
+            logger.error(String(e)); // will log an error because file already exists
         }
     }
 
@@ -167,6 +167,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
 
     if (gameState.countdown > 0 && getPlayersCount(gameState.players) == maxPlayers)
     {
+        dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
         gameState.countdown--;
         if (!queriesToApi) {
             let startBody = JSON.stringify({
@@ -188,6 +189,23 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
             queriesToApi = true;
         }
 
+        if (gameState.countdown % 10 == 0)
+        {
+            let json_data = JSON.parse(get_api('http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger));
+            let payments = json_data.payments;
+            for (let payment of payments) {
+                if (payment.status == 1) {
+                    let player: Player = getPlayerByWalletId(gameState.player, nakama, payment.buyer);
+                    playerPaid(gameState, player);
+                } else if (payment.status == 2) {
+                    dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
+                    gameState.endMatch = true;
+                    gameState.scene = Scene.Home;
+                    dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
+                }
+            }
+        }
+
         if (isAllPlayersPaid(gameState.players)) {
             if (DEBUG)
                 gameState.countdown = DurationFinalTestResult * TickRate;
@@ -195,7 +213,6 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                 gameState.countdown = DurationFinalResult * TickRate;
             gameState.scene = Scene.Battle;
             dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
-            dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
         }
         if (gameState.countdown == 0)
         {
@@ -253,9 +270,8 @@ function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, di
     gameState.scene = Scene.Home;
 }
 
-function playerPaid(nk: nkruntime.Nakama, message: nkruntime.MatchMessage, gameState: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger): void
+function playerPaid(gameState: GameState, data: Player): void
 {
-    let data: Player = JSON.parse(nk.binaryToString(message.data));
     let playerNumber: number = getPlayerNumber(gameState.players, data.presence.sessionId);
     gameState.players[playerNumber].isPaid = true;
 }
@@ -286,6 +302,33 @@ function cancelMatchApi(players: Player[], matchId: number, logger: nkruntime.Lo
     }
 }
 
+async function get_api(url: string, logger: nkruntime.Logger) {
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        logger.info('result is: ', JSON.stringify(result));
+        return result;
+    } catch (error) {
+        if (error instanceof Error) {
+            logger.error('error message: ', error.message);
+            return error.message;
+        } else {
+            logger.error('unexpected error: ', error);
+            return 'An unexpected error occurred';
+        }
+    }
+}
+
 async function post_api(url: string, body: any, logger: nkruntime.Logger) 
 {
     try {
@@ -302,7 +345,7 @@ async function post_api(url: string, body: any, logger: nkruntime.Logger)
             throw new Error(`Error! status: ${response.status}`);
 
         const result = await response.json();
-        logger.info('result is: ', result);
+        logger.info('result is: ', JSON.stringify(result));
         return result;
     } catch (error) {
         if (error instanceof Error) {
@@ -313,6 +356,24 @@ async function post_api(url: string, body: any, logger: nkruntime.Logger)
           return 'An unexpected error occurred';
         }
     }
+}
+
+function getPlayerByWalletId(players: Player[], nakama: nkruntime.Nakama, walletID: number): Player | null
+{
+    var maxPlayers: number = MaxPlayers;
+
+    if (DEBUG)
+        maxPlayers = MaxTestPlayers;
+
+    for (let playerNumber = 0; playerNumber < maxPlayers; playerNumber++)
+    {
+        var player: Player = players[playerNumber];
+        var account: nkruntime.Account = nakama.accountGetId(player.presence.userId);
+        if (account.metadata.walletID == walletID) 
+            return player;
+    }
+
+    return null;
 }
 
 function isAllPlayersPaid(players: Player[]): boolean

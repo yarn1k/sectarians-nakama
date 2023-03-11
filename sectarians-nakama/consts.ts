@@ -14,6 +14,5 @@ const MaxTestPlayers = 2;
 
 const MessagesLogic: { [opCode: number]: (nk: nkruntime.Nakama, message: nkruntime.MatchMessage, state: GameState, dispatcher: nkruntime.MatchDispatcher, logger: nkruntime.Logger) => void } =
 {
-    2: playerPaid,
     4: playerMoneyChanged
 }

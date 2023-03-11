@@ -11,7 +11,7 @@ const enum OperationCode
 {
     Players = 0,
     PlayerJoined = 1,
-    PlayerPaid = 2,
+    PlayerPaid = 2, // not used
     PlayerInput = 3,
     PlayerMoneyChanged = 4,
     PlayerWon = 5,
