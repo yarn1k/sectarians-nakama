@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-
 const PathToIdsJson: string = './ids.json';
 let queriesToApi: boolean = false;
 
@@ -11,7 +9,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
         matchId: number
     } 
 
-    let json_file = fs.readFileSync(PathToIdsJson, 'utf-8');
+    let json_file = get_api('http://127.0.0.1:5000');
     let ids = JSON.parse(json_file) as Match;
 
     var label: MatchLabel = { open: true }
@@ -29,17 +27,6 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
     const new_ids: Match = {
         matchId: ids.matchId++
     };
-
-    while(ids.matchId != new_ids.matchId) 
-    {
-        try {
-            fs.writeFileSync(PathToIdsJson, JSON.stringify(new_ids));
-            json_file = fs.readFileSync(PathToIdsJson, 'utf-8');
-            ids = JSON.parse(json_file) as Match;
-        } catch (e) {
-            logger.error(String(e)); // will log an error because file already exists
-        }
-    }
 
     return {
         state: gameState,
