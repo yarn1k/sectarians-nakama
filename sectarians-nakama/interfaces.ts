@@ -12,6 +12,7 @@ interface GameState
     countdown: number
     draw: boolean
     endMatch: boolean
+    queriesToApi: boolean
 }
 
 interface Player
