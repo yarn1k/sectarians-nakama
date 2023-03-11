@@ -1,5 +1,5 @@
 const PathToIdsJson: string = './ids.json';
-var QueriesToApi: number = false;
+var QueriesToApi: boolean = false;
 
 let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, params: { [key: string]: string })
 {
