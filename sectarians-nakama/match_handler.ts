@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+const fs = require('fs');
 
 const PathToIdsJson: string = './ids.json';
 let queriesToApi: boolean = false;
