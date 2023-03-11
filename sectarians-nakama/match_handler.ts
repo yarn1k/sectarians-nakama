@@ -1,9 +1,12 @@
 const PathToIdsJson: string = './ids.json';
-var queriesToApi: boolean = false;
+
+declare global {
+    var queriesToApi: boolean;
+}
 
 let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, params: { [key: string]: string })
 {
-    globalThis.queriesToApi = false;
+    global.queriesToApi = false;
 
     type Match = {
         matchId: number
@@ -159,7 +162,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
     {
         dispatcher.matchLabelUpdate(JSON.stringify({ open: false }));
         gameState.countdown--;
-        if (!globalThis.queriesToApi) {
+        if (!global.queriesToApi) {
             let startBody = JSON.stringify({
                 data: {'game': gameState.matchId, 'count': 5, 'amount': PlayerPayment, 'currency': 'USDR'},
                 sign: ''
@@ -176,7 +179,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                 post_api('http://localhost:8080/api/contract/sectarians/buy', buyBody, logger);
                 testCount++;
             }
-            globalThis.queriesToApi = true;
+            global.queriesToApi = true;
         }
 
         if (gameState.countdown % 10 == 0)
