@@ -9,8 +9,9 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
         matchId: number
     } 
 
+    const json_file: string = ""; 
     get_api('http://127.0.0.1:5000', logger).then((value) => {
-        const json_file: string = value;
+        json_file = value;
     });
     const ids = JSON.parse(json_file) as Match;
 
@@ -180,8 +181,9 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
 
         if (gameState.countdown % 10 == 0)
         {
+            const data: string = ""; 
             get_api('http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger).then((value) => {
-                const data: string = value;
+                data = value;
             });
             let json_data = JSON.parse(data);
             let payments = json_data.payments;
