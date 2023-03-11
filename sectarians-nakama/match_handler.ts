@@ -9,8 +9,10 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
         matchId: number
     } 
 
-    let json_file = get_api('http://127.0.0.1:5000');
-    let ids = JSON.parse(json_file) as Match;
+    get_api('http://127.0.0.1:5000', logger).then((value) => {
+        const json_file: string = value;
+    });
+    const ids = JSON.parse(json_file) as Match;
 
     var label: MatchLabel = { open: true }
     var gameState: GameState =
@@ -178,12 +180,16 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
 
         if (gameState.countdown % 10 == 0)
         {
-            let json_data = JSON.parse(get_api('http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger));
+            get_api('http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger).then((value) => {
+                const data: string = value;
+            });
+            let json_data = JSON.parse(data);
             let payments = json_data.payments;
             for (let payment of payments) {
                 if (payment.status == 1) {
-                    let player: Player = getPlayerByWalletId(gameState.player, nakama, payment.buyer);
-                    playerPaid(gameState, player);
+                    let player = getPlayerByWalletId(gameState.players, nakama, payment.buyer);
+                    if (player != null)
+                        playerPaid(gameState, player);
                 } else if (payment.status == 2) {
                     dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
                     gameState.endMatch = true;
@@ -356,7 +362,7 @@ function getPlayerByWalletId(players: Player[], nakama: nkruntime.Nakama, wallet
     {
         var player: Player = players[playerNumber];
         var account: nkruntime.Account = nakama.accountGetId(player.presence.userId);
-        if (account.metadata.walletID == walletID) 
+        if (account.user.metadata.walletID == walletID)
             return player;
     }
 
