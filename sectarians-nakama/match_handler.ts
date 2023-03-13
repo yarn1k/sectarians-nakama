@@ -295,7 +295,7 @@ function get_api(nk: nkruntime.Nakama, url: string, logger: nkruntime.Logger): s
 {
     let headers = { 'Accept': 'application/json' };
     try {
-        let response = nk.httpRequest(url, 'get', headers, {}, 10000);
+        let response = nk.httpRequest(url, 'get', headers, '{}', 10000);
         logger.info(response.body);
         return response.body;
     } catch (error) {
