@@ -7,10 +7,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
     } 
 
     let json_file: string = ""; 
-    get_api('http://127.0.0.1:5000', function(value: string) {
-        logger.info('result is: ', JSON.stringify(value));
-        json_file = value;
-    }, logger);
+    get_api(nakama, 'http://127.0.0.1:5000', logger);
     const ids = JSON.parse(json_file) as Match;
 
     var label: MatchLabel = { open: true }
@@ -163,7 +160,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                 data: {'game': gameState.matchId, 'count': 5, 'amount': PlayerPayment, 'currency': 'USDR'},
                 sign: ''
             });
-            post_api('http://localhost:8080/api/contract/sectarians/start', startBody, logger);
+            post_api(nakama, 'http://localhost:8080/api/contract/sectarians/start', startBody, logger);
 
             let testCount = 1;
             for (let player of gameState.players)
@@ -172,7 +169,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                     data: {'payment': PlayerPayment, 'account': testCount, 'game': gameState.matchId},
                     sign: ''
                 });
-                post_api('http://localhost:8080/api/contract/sectarians/buy', buyBody, logger);
+                post_api(nakama, 'http://localhost:8080/api/contract/sectarians/buy', buyBody, logger);
                 testCount++;
             }
             gameState.queriesToApi = true;
@@ -181,10 +178,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
         if (gameState.countdown % 10 == 0)
         {
             let data: string = ""; 
-            get_api('http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, function(value: string) {
-                logger.info('result is: ', JSON.stringify(value));
-                data = value;
-            }, logger);
+            get_api(nakama, 'http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger);
             let json_data = JSON.parse(data);
             let payments = json_data.payments;
             for (let payment of payments) {
@@ -243,13 +237,13 @@ function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, di
             data: {'game': gameState.matchId, 'wins': [1]},
             sign: ''
         });
-        post_api('http://localhost:8080/api/contract/sectarians/end', endBody, logger);
+        post_api(nakama, 'http://localhost:8080/api/contract/sectarians/end', endBody, logger);
 
         let profitBody = JSON.stringify({
             data: {'game': gameState.matchId, 'currency': 'USDR'},
             sign: ''
         });
-        post_api('http://localhost:8080/api/contract/sectarians/profit', profitBody, logger);
+        post_api(nakama, 'http://localhost:8080/api/contract/sectarians/profit', profitBody, logger);
 
         dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
     }
@@ -292,21 +286,17 @@ function cancelMatchApi(players: Player[], matchId: number, logger: nkruntime.Lo
             data: {'payment': PlayerPayment, 'account': testCount, 'game': matchId},
             sign: ''
         });
-        post_api('http://localhost:8080/api/contract/sectarians/cancelpay', cancelBody, logger);
+        post_api(nakama, 'http://localhost:8080/api/contract/sectarians/cancelpay', cancelBody, logger);
         testCount++;
     }
 }
 
-function get_api(url: string, callback: Function, logger: nkruntime.Logger) 
+function get_api(nk: nkruntime.Nakama, url: string, logger: nkruntime.Logger): string
 {
+    let headers = { 'Accept': 'application/json' };
     try {
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() { 
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-                callback(xmlHttp.responseText);
-        }
-        xmlHttp.open("GET", url, true); // true for asynchronous 
-        xmlHttp.send(null);
+        let response = nk.httpRequest(url, 'get', headers);
+        return response.body;
     } catch (error) {
         if (error instanceof Error) {
             logger.error('error message: ', error.message);
@@ -316,16 +306,12 @@ function get_api(url: string, callback: Function, logger: nkruntime.Logger)
     }
 }
 
-function post_api(url: string, body: any, logger: nkruntime.Logger)
+function post_api(nk: nkruntime.Nakama, url: string, body: any, logger: nkruntime.Logger): string
 {
+    let headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
     try {
-        var xmlHttp = new XMLHttpRequest();
-        xmlHttp.onreadystatechange = function() { 
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-                logger.info(xmlHttp.responseText);
-        }
-        xmlHttp.open("POST", url, true);
-        xmlHttp.send(body);
+        let response = nk.httpRequest(url, 'post', headers, body);
+        return response.body;
     } catch (error) {
         if (error instanceof Error) {
             logger.error('error message: ', error.message);
