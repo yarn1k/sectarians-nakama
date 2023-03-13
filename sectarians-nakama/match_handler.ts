@@ -296,7 +296,8 @@ function cancelMatchApi(players: Player[], matchId: number, logger: nkruntime.Lo
     }
 }
 
-async function get_api(url: string, logger: nkruntime.Logger) {
+async function get_api(url: string, logger: nkruntime.Logger): string 
+{
     try {
         const response = await fetch(url, {
             method: 'GET',
@@ -323,7 +324,7 @@ async function get_api(url: string, logger: nkruntime.Logger) {
     }
 }
 
-async function post_api(url: string, body: any, logger: nkruntime.Logger) 
+async function post_api(url: string, body: any, logger: nkruntime.Logger): string
 {
     try {
         const response = await fetch(url, {
