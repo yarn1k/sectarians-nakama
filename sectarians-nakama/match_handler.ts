@@ -181,6 +181,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
             for (let payment of payments) {
                 if (payment.status == 1) {
                     let player = getPlayerByWalletId(gameState.players, nakama, payment.buyer);
+                    logger.info("player="+player.presence.userId);
                     if (player != null)
                         playerPaid(gameState, player);
                 } else if (payment.status == 2) {
