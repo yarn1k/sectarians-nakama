@@ -8,8 +8,10 @@
     "./consts.ts"
   ],
   "compilerOptions": {
-	  "types": [ "nakama-runtime", "node-fetch" ],
-    "outFile": "./build/index.js",
+	  "typeRoots": [
+      "./node_modules"
+    ],
+   "outFile": "./build/index.js",
     "target": "es5",
     "module": "amd",
     "strict": true,

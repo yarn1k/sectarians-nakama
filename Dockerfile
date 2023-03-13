@@ -4,8 +4,6 @@ WORKDIR /backend
 
 COPY package*.json .
 RUN npm install
-RUN npm i node-fetch
-RUN npm install --save @types/node-fetch
 
 COPY tsconfig.json .
 COPY sectarians-nakama/* .
