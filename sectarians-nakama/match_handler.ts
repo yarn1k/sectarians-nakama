@@ -3,7 +3,7 @@ const PathToIdsJson: string = './ids.json';
 let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, params: { [key: string]: string })
 {
     type Match = {
-        matchId: number
+        matchid: number
     } 
 
     let json_file: string = get_api(nakama, 'http://94.103.87.193:5000', logger);
@@ -21,11 +21,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
         endMatch: false,
         queriesToApi: false
     }
-
-    const new_ids: Match = {
-        matchId: ids.matchId++
-    };
-
+    
     return {
         state: gameState,
         tickRate: TickRate,
