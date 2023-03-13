@@ -56,6 +56,9 @@ let matchJoin: nkruntime.MatchJoinFunction = function (context: nkruntime.Contex
             isPaid: false
         }
 
+        if (DEBUG && getPlayersCount() == 1)
+            player.isPaid = true
+
         /*if (DEBUG)
             player.isPaid = true;*/
 
