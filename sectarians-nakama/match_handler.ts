@@ -159,6 +159,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                 "data": {'game': gameState.matchId, 'count': 5, 'amount': PlayerPayment, 'currency': 'USDR'},
                 "sign": ''
             });
+            logger.info(startBody);
             post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/start', startBody, logger);
 
             let testCount = 1;
@@ -168,6 +169,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                     "data": {'payment': PlayerPayment, 'account': testCount, 'game': gameState.matchId},
                     "sign": ''
                 });
+                logger.info(buyBody);
                 post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/buy', buyBody, logger);
                 testCount++;
             }
