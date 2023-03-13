@@ -1,4 +1,4 @@
-const DEBUG = true
+const DEBUG = false
 
 const TickRate = 1;
 const DurationLobby = 600;
