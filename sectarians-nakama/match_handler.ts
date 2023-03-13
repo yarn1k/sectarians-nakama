@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 const PathToIdsJson: string = './ids.json';
 
 let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Context, logger: nkruntime.Logger, nakama: nkruntime.Nakama, params: { [key: string]: string })
@@ -8,9 +7,10 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
     } 
 
     let json_file: string = ""; 
-    get_api('http://127.0.0.1:5000', logger).then((value) => {
+    get_api('http://127.0.0.1:5000', function(value: string) {
+        logger.info('result is: ', JSON.stringify(value));
         json_file = value;
-    });
+    });;
     const ids = JSON.parse(json_file) as Match;
 
     var label: MatchLabel = { open: true }
@@ -163,6 +163,10 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                 data: {'game': gameState.matchId, 'count': 5, 'amount': PlayerPayment, 'currency': 'USDR'},
                 sign: ''
             });
+            get_api('http://127.0.0.1:5000', function(value: string) {
+                logger.info('result is: ', JSON.stringify(value));
+                json_file = value;
+            });;
             post_api('http://localhost:8080/api/contract/sectarians/start', startBody, logger);
 
             let testCount = 1;
@@ -181,7 +185,8 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
         if (gameState.countdown % 10 == 0)
         {
             let data: string = ""; 
-            get_api('http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger).then((value) => {
+            get_api('http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, function(value: string) {
+                logger.info('result is: ', JSON.stringify(value));
                 data = value;
             });
             let json_data = JSON.parse(data);
@@ -296,59 +301,40 @@ function cancelMatchApi(players: Player[], matchId: number, logger: nkruntime.Lo
     }
 }
 
-async function get_api(url: string, logger: nkruntime.Logger): Promise<string> 
+function get_api(url: string, callback: Function) 
 {
     try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error(`Error! status: ${response.status}`);
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() { 
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                callback(xmlHttp.responseText);
         }
-
-        const result = await response.json();
-        logger.info('result is: ', JSON.stringify(result));
-        return Promise.resolve(result);
+        xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+        xmlHttp.send(null);
     } catch (error) {
         if (error instanceof Error) {
             logger.error('error message: ', error.message);
-            return Promise.resolve(error.message);
         } else {
             logger.error('unexpected error: ', error);
-            return Promise.resolve('An unexpected error occurred');
         }
     }
 }
 
-async function post_api(url: string, body: any, logger: nkruntime.Logger): Promise<string>
+function post_api(url: string, body: any, logger: nkruntime.Logger)
 {
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            body: body,
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            },
-        });
-
-        if (!response.ok) 
-            throw new Error(`Error! status: ${response.status}`);
-
-        const result = await response.json();
-        logger.info('result is: ', JSON.stringify(result));
-        return Promise.resolve(result);
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() { 
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                logger.info(xmlHttp.responseText);
+        }
+        xmlHttp.open("POST", url, true);
+        xmlHttp.send(body);
     } catch (error) {
         if (error instanceof Error) {
-          logger.error('error message: ', error.message);
-          return Promise.resolve(error.message);
+            logger.error('error message: ', error.message);
         } else {
-          logger.error('unexpected error: ', error);
-          return Promise.resolve('An unexpected error occurred');
+            logger.error('unexpected error: ', error);
         }
     }
 }
