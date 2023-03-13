@@ -6,7 +6,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
         matchId: number
     } 
 
-    let json_file = get_api(nakama, 'http://127.0.0.1:5000', logger);
+    let json_file: string = get_api(nakama, 'http://127.0.0.1:5000', logger);
     const ids = JSON.parse(json_file) as Match;
 
     var label: MatchLabel = { open: true }
@@ -176,7 +176,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
 
         if (gameState.countdown % 10 == 0)
         {
-            let data = get_api(nakama, 'http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger);
+            let data: string = get_api(nakama, 'http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger);
             let json_data = JSON.parse(data);
             let payments = json_data.payments;
             for (let payment of payments) {
@@ -289,7 +289,7 @@ function cancelMatchApi(nk: nkruntime.Nakama, players: Player[], matchId: number
     }
 }
 
-function get_api(nk: nkruntime.Nakama, url: string, logger: nkruntime.Logger): string | null
+function get_api(nk: nkruntime.Nakama, url: string, logger: nkruntime.Logger): string
 {
     let headers = { 'Accept': 'application/json' };
     try {
@@ -301,11 +301,11 @@ function get_api(nk: nkruntime.Nakama, url: string, logger: nkruntime.Logger): s
         } else {
             logger.error('unexpected error: ', error);
         }
-        return null;
+        return '';
     }
 }
 
-function post_api(nk: nkruntime.Nakama, url: string, body: any, logger: nkruntime.Logger): string | null
+function post_api(nk: nkruntime.Nakama, url: string, body: any, logger: nkruntime.Logger): string
 {
     let headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
     try {
@@ -317,7 +317,7 @@ function post_api(nk: nkruntime.Nakama, url: string, body: any, logger: nkruntim
         } else {
             logger.error('unexpected error: ', error);
         }
-        return null;
+        return '';
     }
 }
 
