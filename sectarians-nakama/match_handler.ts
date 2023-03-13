@@ -56,8 +56,8 @@ let matchJoin: nkruntime.MatchJoinFunction = function (context: nkruntime.Contex
             isPaid: false
         }
 
-        if (DEBUG)
-            player.isPaid = true;
+        /*if (DEBUG)
+            player.isPaid = true;*/
 
         let nextPlayerNumber: number = getNextPlayerNumber(gameState.players);
         gameState.players[nextPlayerNumber] = player;
@@ -160,16 +160,15 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
 
             sleep(nakama, 5, logger);
 
-            let testCount = 1;
             for (let player of gameState.players)
             {
+                var account: nkruntime.Account = nakama.accountGetId(player.presence.userId);
                 let buyBody = JSON.stringify({
-                    "data": {'payment': PlayerPayment, 'account': testCount, 'game': gameState.matchId},
+                    "data": {'payment': PlayerPayment, 'account': parseInt(account.user.displayName), 'game': gameState.matchId},
                     "sign": ''
                 });
                 logger.info(buyBody);
                 post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/buy', buyBody, logger);
-                testCount++;
             }
             gameState.queriesToApi = true;
         }
@@ -279,15 +278,14 @@ function playerMoneyChanged(nk: nkruntime.Nakama, message: nkruntime.MatchMessag
 }
 
 function cancelMatchApi(nk: nkruntime.Nakama, players: Player[], matchId: number, logger: nkruntime.Logger) {
-    let testCount = 1;
     for (let player of players)
     {
+        var account: nkruntime.Account = nk.accountGetId(player.presence.userId);
         let cancelBody = JSON.stringify({
-            "data": {'payment': PlayerPayment, 'account': testCount, 'game': matchId},
+            "data": {'payment': PlayerPayment, 'account': parseInt(account.user.displayName), 'game': matchId},
             "sign": ''
         });
         post_api(nk, 'http://94.103.87.193:8080/api/contract/sectarians/cancelpay', cancelBody, logger);
-        testCount++;
     }
 }
 
@@ -336,7 +334,7 @@ function getPlayerByWalletId(players: Player[], nakama: nkruntime.Nakama, wallet
     {
         var player: Player = players[playerNumber];
         var account: nkruntime.Account = nakama.accountGetId(player.presence.userId);
-        if (account.user.metadata.walletID == walletID)
+        if (account.user.displayName == walletID)
             return player;
     }
 
