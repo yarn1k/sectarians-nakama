@@ -6,7 +6,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
         matchId: number
     } 
 
-    let json_file: string = get_api(nakama, 'http://127.0.0.1:5000', logger);
+    let json_file: string = get_api(nakama, 'http://94.103.87.193:5000', logger);
     const ids = JSON.parse(json_file) as Match;
 
     var label: MatchLabel = { open: true }
