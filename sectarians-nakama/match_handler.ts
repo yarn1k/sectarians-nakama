@@ -159,7 +159,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                 data: {'game': gameState.matchId, 'count': 5, 'amount': PlayerPayment, 'currency': 'USDR'},
                 sign: ''
             });
-            post_api(nakama, 'http://localhost:8080/api/contract/sectarians/start', startBody, logger);
+            post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/start', startBody, logger);
 
             let testCount = 1;
             for (let player of gameState.players)
@@ -168,7 +168,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                     data: {'payment': PlayerPayment, 'account': testCount, 'game': gameState.matchId},
                     sign: ''
                 });
-                post_api(nakama, 'http://localhost:8080/api/contract/sectarians/buy', buyBody, logger);
+                post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/buy', buyBody, logger);
                 testCount++;
             }
             gameState.queriesToApi = true;
@@ -176,7 +176,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
 
         if (gameState.countdown % 10 == 0)
         {
-            let data: string = get_api(nakama, 'http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger);
+            let data: string = get_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/payments?game='+gameState.matchId, logger);
             let json_data = JSON.parse(data);
             let payments = json_data.payments;
             for (let payment of payments) {
@@ -235,13 +235,13 @@ function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, di
             data: {'game': gameState.matchId, 'wins': [1]},
             sign: ''
         });
-        post_api(nakama, 'http://localhost:8080/api/contract/sectarians/end', endBody, logger);
+        post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/end', endBody, logger);
 
         let profitBody = JSON.stringify({
             data: {'game': gameState.matchId, 'currency': 'USDR'},
             sign: ''
         });
-        post_api(nakama, 'http://localhost:8080/api/contract/sectarians/profit', profitBody, logger);
+        post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/profit', profitBody, logger);
 
         dispatcher.broadcastMessage(OperationCode.PlayerWon, JSON.stringify(data));
     }
@@ -284,7 +284,7 @@ function cancelMatchApi(nk: nkruntime.Nakama, players: Player[], matchId: number
             data: {'payment': PlayerPayment, 'account': testCount, 'game': matchId},
             sign: ''
         });
-        post_api(nk, 'http://localhost:8080/api/contract/sectarians/cancelpay', cancelBody, logger);
+        post_api(nk, 'http://94.103.87.193:8080/api/contract/sectarians/cancelpay', cancelBody, logger);
         testCount++;
     }
 }
