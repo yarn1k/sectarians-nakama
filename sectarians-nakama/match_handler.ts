@@ -12,7 +12,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
     var label: MatchLabel = { open: true }
     var gameState: GameState =
     {
-        matchId: ids.matchId,
+        matchId: ids.matchid,
         players: [],
         playersMoney: [],
         scene: Scene.Lobby,
