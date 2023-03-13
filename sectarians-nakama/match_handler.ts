@@ -295,7 +295,7 @@ function get_api(nk: nkruntime.Nakama, url: string, logger: nkruntime.Logger): s
 {
     let headers = { 'Accept': 'application/json' };
     try {
-        let response = nk.httpRequest(url, 'get', headers);
+        let response = nk.httpRequest(url, 'get', headers, {}, 10000);
         logger.info(response.body);
         return response.body;
     } catch (error) {
@@ -312,7 +312,7 @@ function post_api(nk: nkruntime.Nakama, url: string, body: any, logger: nkruntim
 {
     let headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
     try {
-        let response = nk.httpRequest(url, 'post', headers, body);
+        let response = nk.httpRequest(url, 'post', headers, body, 10000);
         logger.info(response.body);
         return response.body;
     } catch (error) {
