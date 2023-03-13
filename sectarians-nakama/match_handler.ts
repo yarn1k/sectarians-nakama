@@ -158,6 +158,8 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
             logger.info(startBody);
             post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/start', startBody, logger);
 
+            sleep(nakama, 5, logger);
+
             let testCount = 1;
             for (let player of gameState.players)
             {
@@ -234,6 +236,8 @@ function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, di
             "sign": ''
         });
         post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/end', endBody, logger);
+
+        sleep(nakama, 5, logger);
 
         let profitBody = JSON.stringify({
             "data": {'game': gameState.matchId, 'currency': 'USDR'},
@@ -412,4 +416,9 @@ function getNextPlayerNumber(players: Player[]): number
 function playerNumberIsUsed(players: Player[], playerNumber: number): boolean
 {
     return players[playerNumber] != undefined;
+}
+
+var sleep = function (nk: nkruntime.Nakama, sec: number, logger: nkruntime.Logger) 
+{
+    get_api(nk, 'http://94.103.87.193:5000/timeout/'+sec, logger);
 }
