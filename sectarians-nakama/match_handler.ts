@@ -10,7 +10,7 @@ let matchInit: nkruntime.MatchInitFunction = function (context: nkruntime.Contex
     get_api('http://127.0.0.1:5000', function(value: string) {
         logger.info('result is: ', JSON.stringify(value));
         json_file = value;
-    });;
+    }, logger);
     const ids = JSON.parse(json_file) as Match;
 
     var label: MatchLabel = { open: true }
@@ -163,10 +163,6 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                 data: {'game': gameState.matchId, 'count': 5, 'amount': PlayerPayment, 'currency': 'USDR'},
                 sign: ''
             });
-            get_api('http://127.0.0.1:5000', function(value: string) {
-                logger.info('result is: ', JSON.stringify(value));
-                json_file = value;
-            });;
             post_api('http://localhost:8080/api/contract/sectarians/start', startBody, logger);
 
             let testCount = 1;
@@ -188,7 +184,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
             get_api('http://localhost:8080/api/contract/sectarians/payments?game='+gameState.matchId, function(value: string) {
                 logger.info('result is: ', JSON.stringify(value));
                 data = value;
-            });
+            }, logger);
             let json_data = JSON.parse(data);
             let payments = json_data.payments;
             for (let payment of payments) {
@@ -301,7 +297,7 @@ function cancelMatchApi(players: Player[], matchId: number, logger: nkruntime.Lo
     }
 }
 
-function get_api(url: string, callback: Function) 
+function get_api(url: string, callback: Function, logger: nkruntime.Logger) 
 {
     try {
         var xmlHttp = new XMLHttpRequest();
@@ -309,7 +305,7 @@ function get_api(url: string, callback: Function)
             if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
                 callback(xmlHttp.responseText);
         }
-        xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+        xmlHttp.open("GET", url, true); // true for asynchronous 
         xmlHttp.send(null);
     } catch (error) {
         if (error instanceof Error) {
