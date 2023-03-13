@@ -334,7 +334,7 @@ function getPlayerByWalletId(players: Player[], nakama: nkruntime.Nakama, wallet
     {
         var player: Player = players[playerNumber];
         var account: nkruntime.Account = nakama.accountGetId(player.presence.userId);
-        if (account.user.displayName == walletID)
+        if (parseInt(account.user.displayName) == walletID)
             return player;
     }
 
