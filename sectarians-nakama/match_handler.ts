@@ -312,14 +312,14 @@ async function get_api(url: string, logger: nkruntime.Logger): Promise<string>
 
         const result = await response.json();
         logger.info('result is: ', JSON.stringify(result));
-        return result;
+        return Promise.resolve(result);
     } catch (error) {
         if (error instanceof Error) {
             logger.error('error message: ', error.message);
-            return error.message;
+            return Promise.resolve(error.message);
         } else {
             logger.error('unexpected error: ', error);
-            return 'An unexpected error occurred';
+            return Promise.resolve('An unexpected error occurred');
         }
     }
 }
@@ -341,14 +341,14 @@ async function post_api(url: string, body: any, logger: nkruntime.Logger): Promi
 
         const result = await response.json();
         logger.info('result is: ', JSON.stringify(result));
-        return result;
+        return Promise.resolve(result);
     } catch (error) {
         if (error instanceof Error) {
           logger.error('error message: ', error.message);
-          return error.message;
+          return Promise.resolve(error.message);
         } else {
           logger.error('unexpected error: ', error);
-          return 'An unexpected error occurred';
+          return Promise.resolve('An unexpected error occurred');
         }
     }
 }
