@@ -233,9 +233,9 @@ function matchLoopFinalResult(gameState: GameState, nakama: nkruntime.Nakama, di
             tick: TickRate,
             playerNumber: getPlayerNumber(gameState.players, winner.presence.sessionId)
         };
-
+        var account: nkruntime.Account = nakama.accountGetId(winner.presence.userId);
         let endBody = JSON.stringify({
-            "data": {'game': gameState.matchId, 'wins': [1]},
+            "data": {'game': gameState.matchId, 'wins': [parseInt(account.user.displayName)]},
             "sign": ''
         });
         post_api(nakama, 'http://94.103.87.193:8080/api/contract/sectarians/end', endBody, logger);
