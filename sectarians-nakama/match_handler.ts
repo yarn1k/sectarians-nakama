@@ -186,10 +186,10 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
                         playerPaid(gameState, player);
                     }
                 } else if (payment.status == 2) {
+                    cancelMatchApi(nakama, gameState.players, gameState.matchId, logger);
                     dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
                     gameState.endMatch = true;
                     gameState.scene = Scene.Home;
-                    dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
                 }
             }
         }
@@ -206,6 +206,8 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
         {
             cancelMatchApi(nakama, gameState.players, gameState.matchId, logger);
             dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
+            gameState.endMatch = true;
+            gameState.scene = Scene.Home;
         }
     }
 }
