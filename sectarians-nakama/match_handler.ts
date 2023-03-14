@@ -364,7 +364,12 @@ function isAllPlayersPaid(players: Player[]): boolean
 function getPlayersCount(players: Player[]): number
 {
     var count: number = 0;
-    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)
+    var maxPlayers: number = MaxPlayers;
+
+    if (DEBUG)
+        maxPlayers = MaxTestPlayers;
+
+    for (let playerNumber = 0; playerNumber < maxPlayers; playerNumber++)
         if (players[playerNumber] != undefined)
             count++;
 
@@ -397,7 +402,12 @@ function getWinner(playersMoney: number[], players: Player[], gameState: GameSta
 
 function getPlayerNumber(players: Player[], sessionId: string): number
 {
-    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)
+    var maxPlayers: number = MaxPlayers;
+
+    if (DEBUG)
+        maxPlayers = MaxTestPlayers;
+
+    for (let playerNumber = 0; playerNumber < maxPlayers; playerNumber++)
         if (players[playerNumber] != undefined && players[playerNumber].presence.sessionId == sessionId)
             return playerNumber;
 
@@ -406,7 +416,12 @@ function getPlayerNumber(players: Player[], sessionId: string): number
 
 function getNextPlayerNumber(players: Player[]): number
 {
-    for (let playerNumber = 0; playerNumber < MaxTestPlayers; playerNumber++)
+    var maxPlayers: number = MaxPlayers;
+    
+    if (DEBUG)
+        maxPlayers = MaxTestPlayers;
+
+    for (let playerNumber = 0; playerNumber < maxPlayers; playerNumber++)
         if (!playerNumberIsUsed(players, playerNumber))
             return playerNumber;
 
