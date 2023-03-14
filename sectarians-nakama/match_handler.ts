@@ -202,7 +202,7 @@ function matchLoopLobby(gameState: GameState, nakama: nkruntime.Nakama, dispatch
             gameState.scene = Scene.Battle;
             dispatcher.broadcastMessage(OperationCode.ChangeScene, JSON.stringify(gameState.scene));
         }
-        if (gameState.countdown == 0)
+        if (gameState.countdown == 0 || getPlayersCount(gameState.players) == 0)
         {
             cancelMatchApi(nakama, gameState.players, gameState.matchId, logger);
             dispatcher.broadcastMessage(OperationCode.CancelMatch, null);
